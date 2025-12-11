@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reliance Stock Predictor</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #22d3ee;
+      --accent-2: #a855f7;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --danger: #f43f5e;
+      --success: #34d399;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #13203d, #0b1226 40%),
+                  radial-gradient(circle at 80% 0%, #1f2031, #0b1226 50%),
+                  var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .glass {
+      width: min(900px, 100%);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(16px);
+      padding: 28px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: -0.02em;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(120deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.2));
+      color: var(--text);
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--bg);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    }
+    .primary {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 24px rgba(34, 211, 238, 0.2);
+    }
+    .secondary {
+      background: #1f2937;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    button:hover { transform: translateY(-2px); filter: brightness(1.02); }
+    button:active { transform: translateY(0); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .card {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .muted { color: var(--muted); font-size: 14px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .tag.up { color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
+    .tag.down { color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); }
+    .footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .status {
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(34, 211, 238, 0.12);
+    }
+  </style>
+</head>
+<body>
+  <div class="glass">
+    <header>
+      <div>
+        <div class="pill">Reliance Stock Predictor</div>
+        <h1>AI-assisted trend outlook for today & tomorrow</h1>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="refreshBtn">Refresh data</button>
+        <button class="primary" id="predictBtn">Predict now</button>
+      </div>
+    </header>
+
+    <div class="status" id="status"><span class="dot"></span>Ready</div>
+
+    <div class="grid" style="margin-top:14px;">
+      <div class="card">
+        <h3>Today's Market (latest)</h3>
+        <div class="value" id="latestDate">--</div>
+        <div class="muted" id="latestOHLC">Open/High/Low/Close</div>
+      </div>
+      <div class="card">
+        <h3>Today Prediction</h3>
+        <div class="value"><span id="todayTrend">--</span></div>
+        <div class="muted" id="todayProba">Probabilities</div>
+      </div>
+      <div class="card">
+        <h3>Tomorrow Prediction</h3>
+        <div class="value"><span id="tomorrowTrend">--</span></div>
+        <div class="muted" id="tomorrowProba">Probabilities</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>Model: RandomForest (200 trees) trained on RELIANCE.NS daily data (2010 - today).</div>
+      <div>Data powered by Yahoo Finance • Tap “Predict now” to update.</div>
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const latestDateEl = document.getElementById("latestDate");
+    const latestOhlcEl = document.getElementById("latestOHLC");
+    const todayTrendEl = document.getElementById("todayTrend");
+    const todayProbaEl = document.getElementById("todayProba");
+    const tomorrowTrendEl = document.getElementById("tomorrowTrend");
+    const tomorrowProbaEl = document.getElementById("tomorrowProba");
+
+    function setStatus(text, loading = false) {
+      statusEl.innerHTML = `<span class="dot" style="background:${loading ? '#f59e0b' : '#22d3ee'}"></span>${text}`;
+    }
+
+    function formatTrend(trend) {
+      const tagClass = trend === "UP" ? "tag up" : "tag down";
+      const emoji = trend === "UP" ? "📈" : "📉";
+      return `<span class="${tagClass}">${emoji} ${trend}</span>`;
+    }
+
+    async function predict() {
+      try {
+        setStatus("Fetching latest data & running model...", true);
+        const res = await fetch("/api/predict");
+        if (!res.ok) throw new Error("Request failed");
+        const data = await res.json();
+
+        latestDateEl.textContent = `Market date: ${data.latest_date}`;
+        const m = data.latest_market;
+        latestOhlcEl.textContent = `O ${m.open} • H ${m.high} • L ${m.low} • C ${m.close} • Vol ${m.volume.toLocaleString()}`;
+
+        todayTrendEl.innerHTML = formatTrend(data.today_prediction.trend);
+        todayProbaEl.textContent = `P(Down): ${data.today_prediction.prob_down} | P(Up): ${data.today_prediction.prob_up}`;
+
+        tomorrowTrendEl.innerHTML = formatTrend(data.tomorrow_prediction.trend);
+        tomorrowProbaEl.textContent = `P(Down): ${data.tomorrow_prediction.prob_down} | P(Up): ${data.tomorrow_prediction.prob_up} (for ${data.tomorrow_prediction.for_date})`;
+
+        setStatus(`Updated just now • Based on data through ${data.latest_date}`);
+      } catch (err) {
+        console.error(err);
+        setStatus("Error: unable to fetch prediction");
+        todayTrendEl.textContent = tomorrowTrendEl.textContent = "--";
+        todayProbaEl.textContent = tomorrowProbaEl.textContent = "";
+      }
+    }
+
+    document.getElementById("predictBtn").addEventListener("click", predict);
+    document.getElementById("refreshBtn").addEventListener("click", predict);
+
+    // Auto-run on load
+    predict();
+  </script>
+</body>
+</html>
+
