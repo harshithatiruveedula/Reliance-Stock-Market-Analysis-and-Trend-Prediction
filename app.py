@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 from sklearn.ensemble import RandomForestClassifier
+from pandas.tseries.offsets import BDay
 
 # Page config
 st.set_page_config(
@@ -240,16 +241,19 @@ def train_model(df: pd.DataFrame):
 
 
 def build_predictions(df: pd.DataFrame, model: RandomForestClassifier):
-    """
-    Build predictions for:
-    - today: using the previous day's features (predicting the latest known day)
-    - tomorrow: using the latest day's features (predicting next day)
-    """
-    latest_idx = df.index[-1]
-    prev_idx = df.index[-2]
+    latest_idx = df.index[-1]      # last completed trading day
+    prev_idx = df.index[-2]        # previous trading day
 
-    latest_features = pd.DataFrame([df.iloc[-1][FEATURE_COLS]], columns=FEATURE_COLS)
-    prev_features = pd.DataFrame([df.iloc[-2][FEATURE_COLS]], columns=FEATURE_COLS)
+    next_trading_day = latest_idx + BDay(1)
+
+    latest_features = pd.DataFrame(
+        [df.iloc[-1][FEATURE_COLS]],
+        columns=FEATURE_COLS
+    )
+    prev_features = pd.DataFrame(
+        [df.iloc[-2][FEATURE_COLS]],
+        columns=FEATURE_COLS
+    )
 
     tomorrow_pred = model.predict(latest_features)[0]
     tomorrow_proba = model.predict_proba(latest_features)[0]
@@ -260,7 +264,8 @@ def build_predictions(df: pd.DataFrame, model: RandomForestClassifier):
     return {
         "latest_date": latest_idx.strftime("%d-%m-%Y"),
         "prev_date": prev_idx.strftime("%d-%m-%Y"),
-        "tomorrow_date": (latest_idx + timedelta(days=1)).strftime("%d-%m-%Y"),
+        "tomorrow_date": next_trading_day.strftime("%d-%m-%Y"),
+
         "latest_market": {
             "open": round(df.iloc[-1]["Open"], 2),
             "high": round(df.iloc[-1]["High"], 2),
@@ -268,14 +273,16 @@ def build_predictions(df: pd.DataFrame, model: RandomForestClassifier):
             "close": round(df.iloc[-1]["Close"], 2),
             "volume": int(df.iloc[-1]["Volume"]),
         },
+
         "today_prediction": {
             "for_date": latest_idx.strftime("%d-%m-%Y"),
             "trend": "UP" if today_pred == 1 else "DOWN",
             "prob_down": round(float(today_proba[0]), 3),
             "prob_up": round(float(today_proba[1]), 3),
         },
+
         "tomorrow_prediction": {
-            "for_date": (latest_idx + timedelta(days=1)).strftime("%d-%m-%Y"),
+            "for_date": next_trading_day.strftime("%d-%m-%Y"),
             "trend": "UP" if tomorrow_pred == 1 else "DOWN",
             "prob_down": round(float(tomorrow_proba[0]), 3),
             "prob_up": round(float(tomorrow_proba[1]), 3),
