@@ -76,7 +76,7 @@ st.markdown("""
         margin: 0;
         font-size: 26px;
         letter-spacing: -0.02em;
-        color: #FFFFFF;
+        color: #e5e7eb;
     }
     
     .prediction-card {
@@ -392,4 +392,5 @@ st.markdown("""
 
 # Close glass container
 st.markdown('</div>', unsafe_allow_html=True)
+
 
