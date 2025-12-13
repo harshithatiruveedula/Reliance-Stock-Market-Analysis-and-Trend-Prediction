@@ -175,6 +175,11 @@ st.markdown("""
         font-size: 13px;
         margin-top: 16px;
     }
+    /* Force main hero heading to pure white */
+.glass-container h1 {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -392,5 +397,6 @@ st.markdown("""
 
 # Close glass container
 st.markdown('</div>', unsafe_allow_html=True)
+
 
 
