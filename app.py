@@ -175,10 +175,13 @@ st.markdown("""
         font-size: 13px;
         margin-top: 16px;
     }
-    /* Force main hero heading to pure white */
+    /* 🔥 FORCE hero heading visibility */
 .glass-container h1 {
     color: #ffffff !important;
     opacity: 1 !important;
+    z-index: 9999 !important;
+    position: relative !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -397,6 +400,7 @@ st.markdown("""
 
 # Close glass container
 st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 
